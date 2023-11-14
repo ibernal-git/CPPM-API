@@ -18,3 +18,17 @@ Manual de configuración de API en Clearpass: <https://developer.arubanetworks.c
 
 - mac.txt - Para el funcionamiento del script es necesario crear un archivo con el listado de macs sin delimitadores.
 - .env - También es necesario **especificar el servidor de CPPM** y el **Client ID** creado en Guest.
+
+### Python
+
+- Es necesario tener instalado Python v3.9 o superior
+- Instalar pyclearpass (Librería para la API de CPPM)
+
+```python
+pip install pyclearpass
+```
+- Instalar dotenv_values
+
+```python
+pip install python-dotenv
+```
