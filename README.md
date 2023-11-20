@@ -1,8 +1,8 @@
 # Script para consulta de usuarios en CPPM
 
-Este script permite que dado un listado de MACS sin delimitadores ubicados en un archivo llamado "mac.txt" consulte si esos usuarios existen en CPPM.
+Este script permite que dado un listado de MACS sin delimitadores o ID de usuario ubicados en un archivo llamado "mac.txt" consulte si esos usuarios o endpoints existen en CPPM.
 
-Los usuarios no encontrados se mostrarán a través de pantalla.
+Los usuarios o endpoints no encontrados se mostrarán a través de pantalla.
 
 ## Requisitos
 
