@@ -5,6 +5,7 @@ from utils.filter import get_filter
 from utils.menu import show_menu
 import sys
 import getpass
+import json
 
 # Variables de entorno (.env)
 config = dotenv_values(".env")
@@ -35,18 +36,33 @@ def result_validation(result):
 def check_results(result, filter):
   # Comprobacion de ID o MAC encontradas en Clearpass
   embedded = get_val('_embedded', result).get('items')
-  
+
   cppm_macs = []
   for elem in embedded:
-    cppm_macs.append(get_val(filter, elem))
+    cppm_macs.append((get_val(filter, elem), get_val('attributes', elem)))
+
   items_not_found = []
-  for elem in macs_array:
-      if elem in cppm_macs:
-          print(elem+" encontrada en Clearpass")
-          continue
-      else:
-          items_not_found.append(elem)
-          print(elem+" <NO> encontrada en Clearpass")
+
+  json_data_list = []  # Lista para almacenar los objetos JSON
+
+  for mac in macs_array:
+    encontrado = False
+    for tupla in cppm_macs:
+      if mac in tupla[0]:  # Buscar en el primer elemento de la tupla
+        print(f"{mac} encontrado en Clearpass")
+        print(f"Detalles: {tupla[1]}")
+        json_data = {"mac": mac, "details": tupla[1]}
+        json_data_list.append(json_data)  # Agregar el objeto JSON a la lista
+        encontrado = True
+        break
+
+    if not encontrado:
+        items_not_found.append(mac)
+        print(f"{mac} <NO> encontrado en Clearpass")
+
+  # Escribir la lista completa de objetos JSON en el archivo
+  with open('details.json', 'w') as f:
+      json.dump(json_data_list, f, indent=2)
       
   if filter == FILTER[LOCAL_USERS]:
       print("\nTotal de usuarios locales no encontrados en CPPM: %s\n" % (len(items_not_found)))
