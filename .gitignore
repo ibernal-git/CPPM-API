@@ -1,4 +1,4 @@
 .env
 mac.txt
-details.json
+*.json
 __pycache__/
