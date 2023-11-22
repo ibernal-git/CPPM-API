@@ -61,7 +61,7 @@ def result_validation(result):
 
     if count_result:
         print(f"Total en CPPM: {count_result}\n")
-        print("\n<---------------------------------------------------->\n")
+        print_separator()
 
 
 def print_results_not_found(items_not_found, filter_name, file_name=DETAILS_FILE_NAME):
@@ -69,7 +69,7 @@ def print_results_not_found(items_not_found, filter_name, file_name=DETAILS_FILE
         f"\nTotal de elementos no encontrados en CPPM ({filter_name}): {len(items_not_found)}"
     )
     print(f"Elementos no encontrados en CPPM ({filter_name}): {items_not_found}")
-    print("\n<---------------------------------------------------->\n")
+    print_separator()
     print(f"Detalles guardados en archivo {file_name}\n")
 
 
@@ -98,9 +98,7 @@ def check_results(result, filter, macs_array, file_name=DETAILS_FILE_NAME):
                     if filter != FILTER[ACTIVE_SESSION]:
                         print(f"{mac} encontrado en Clearpass")
                         print(f"Detalles: {tupla[1]}")
-                        print(
-                            "\n<---------------------------------------------------->\n"
-                        )
+                        print_separator()
                     json_data = {"mac": mac, "details": tupla[1]}
                     json_data_list.append(
                         json_data
@@ -111,7 +109,7 @@ def check_results(result, filter, macs_array, file_name=DETAILS_FILE_NAME):
                 items_not_found.append(mac)
                 if filter != FILTER[ACTIVE_SESSION]:
                     print(f"{mac} <NO> encontrado en Clearpass")
-                    print("\n<---------------------------------------------------->\n")
+                    print_separator()
 
     # Escribir la lista completa de objetos JSON en el archivo
     with open(file_name, "w") as f:
