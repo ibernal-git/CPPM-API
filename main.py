@@ -13,8 +13,9 @@ def read_file_safe(file_name):
     try:
         with open(file_name) as file:
             return file.read().splitlines()
-    except FileNotFoundError as e:
-        raise FileNotFoundError(f"Error: {e}")
+    except FileNotFoundError as error:
+        print(f"ERROR: {error}")
+        sys.exit()
 
 
 # Imprimir mensajes constantes
