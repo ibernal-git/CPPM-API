@@ -45,6 +45,9 @@ def get_val(i, dict):
 
 
 def result_validation(result):
+    if get_val("status", result) == 401:
+        print("Error: credenciales invalidas")
+        sys.exit()
     count_result = get_val("count", result)
     if count_result is None:
         print("No se han encontrado MACs en Clearpass\n")
