@@ -34,3 +34,9 @@ pip install pyclearpass
 ```python
 pip install python-dotenv
 ```
+- Instalar pandas y openpyxl para la exportación a excel
+
+```python
+pip install pandas
+pip install openpyxl
+```

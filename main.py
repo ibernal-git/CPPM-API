@@ -75,6 +75,17 @@ def print_results_not_found(items_not_found, filter_name, file_name=DETAILS_FILE
     print(f"Detalles guardados en archivo {file_name}\n")
 
 
+def convert_json_to_dataframe(json_data_list):
+    return pd.json_normalize(
+        json_data_list,
+        meta=["mac", ["details", "Active Username"], ["details", "FQDN"]],
+    )
+
+
+def write_dataframe_to_excel(df, file_name="endpoints.xlsx"):
+    df.to_excel(file_name, index=False)
+
+
 def check_results(result, filter, macs_array, file_name=DETAILS_FILE_NAME):
     embedded = get_val("_embedded", result).get("items")
     cppm_macs = extract_cppm_macs(embedded, filter)
@@ -85,6 +96,15 @@ def check_results(result, filter, macs_array, file_name=DETAILS_FILE_NAME):
     write_json_to_file(json_data_list, file_name)
 
     print_not_found_message(items_not_found, filter, file_name)
+
+    option_excel = input(
+        "¿Deseas guardar los elementos encontrados en un fichero EXCEL? (s/n): "
+    )
+    if option_excel == "s":
+        file_name = input("Introduce el nombre del fichero: ")
+        df = convert_json_to_dataframe(json_data_list)
+        write_dataframe_to_excel(df, file_name)
+        print(f"Detalles guardados en archivo {file_name}\n")
 
     option_not_found = input("¿Deseas guardar los elementos no encontrados? (s/n): ")
     if option_not_found == "s":
