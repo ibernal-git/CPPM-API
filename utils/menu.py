@@ -8,14 +8,15 @@ def print_menu():
     print("1. Buscar usuarios locales")
     print("2. Buscar endpoints")
     print("3. Buscar usuarios locales y endpoints")
-    print("4. Buscar sesiones activas de dispositivos en mac.txt")
-    print("5. Buscar sesiones activas en un Device (Introducir NAS IP)")
-    print("6. Salir")
+    print("4. Buscar endpoints y comprobar roles asignados (atributo Last Known Role)")
+    print("5. Buscar sesiones activas de dispositivos en mac.txt")
+    print("6. Buscar sesiones activas en un Device (Introducir NAS IP)")
+    print("7. Salir")
 
 
 def get_user_choice():
     while True:
-        opcion = input("Ingrese su opción[1/2/3/4/5/6]: ")
+        opcion = input("Ingrese su opción[1/2/3/4/5/6/7]: ")
         if opcion.isdigit():
             return int(opcion)
         else:
@@ -34,10 +35,12 @@ def show_menu():
         elif opcion == 3:
             return None
         elif opcion == 4:
-            return ACTIVE_SESSION
+            return ENDPOINTS_ROLE
         elif opcion == 5:
-            return NAS_SESSION
+            return ACTIVE_SESSION
         elif opcion == 6:
+            return NAS_SESSION
+        elif opcion == 7:
             sys.exit()
         else:
             print("\nOpción inválida. Intente nuevamente.")

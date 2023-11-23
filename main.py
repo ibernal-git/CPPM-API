@@ -6,6 +6,7 @@ from utils.menu import show_menu
 import sys
 import getpass
 import json
+import pandas as pd
 
 
 # Manejo de excepciones
@@ -75,51 +76,92 @@ def print_results_not_found(items_not_found, filter_name, file_name=DETAILS_FILE
 
 
 def check_results(result, filter, macs_array, file_name=DETAILS_FILE_NAME):
-    # Comprobacion de ID o MAC encontradas en Clearpass
     embedded = get_val("_embedded", result).get("items")
+    cppm_macs = extract_cppm_macs(embedded, filter)
+    items_not_found = []
+    json_data_list = create_json_data_list(
+        cppm_macs, filter, macs_array, items_not_found
+    )
+    write_json_to_file(json_data_list, file_name)
 
+    print_not_found_message(items_not_found, filter, file_name)
+
+    option_not_found = input("¿Deseas guardar los elementos no encontrados? (s/n): ")
+    if option_not_found == "s":
+        file_name = input("Introduce el nombre del fichero: ")
+        write_json_to_file(items_not_found, file_name)
+        print(f"Detalles guardados en archivo {file_name}\n")
+
+
+def extract_cppm_macs(embedded, filter):
     cppm_macs = []
     for elem in embedded:
         if filter == FILTER[ACTIVE_SESSION] or filter == FILTER[NAS_SESSION]:
             cppm_macs.append((get_val(CALLING_STATION_ID, elem), elem))
         else:
-            cppm_macs.append((get_val(filter, elem), get_val("attributes", elem)))
-    items_not_found = []
+            if filter == FILTER[ENDPOINTS_ROLE]:
+                cppm_macs.append((get_val("mac_address", elem), elem))
+            else:
+                cppm_macs.append((get_val(filter, elem), get_val("attributes", elem)))
+    return cppm_macs
 
-    json_data_list = []  # Lista para almacenar los objetos JSON
-    if filter == FILTER[NAS_SESSION]:
+
+def create_json_data_list(cppm_macs, filter, macs_array, items_not_found):
+    json_data_list = []
+
+    for mac in macs_array:
+        encontrado = False
         for tupla in cppm_macs:
-            json_data = {"mac": tupla[0], "details": tupla[1]}
-            json_data_list.append(json_data)  # Agregar el objeto JSON a la lista
-    else:
-        for mac in macs_array:
-            encontrado = False
-            for tupla in cppm_macs:
-                if mac in tupla[0]:  # Buscar en el primer elemento de la tupla
-                    if filter != FILTER[ACTIVE_SESSION]:
-                        print(f"{mac} encontrado en Clearpass")
-                        print(f"Detalles: {tupla[1]}")
-                        print_separator()
-                    json_data = {"mac": mac, "details": tupla[1]}
-                    json_data_list.append(
-                        json_data
-                    )  # Agregar el objeto JSON a la lista
-                    encontrado = True
-                    break
-            if not encontrado:
-                items_not_found.append(mac)
-                if filter != FILTER[ACTIVE_SESSION]:
-                    print(f"{mac} <NO> encontrado en Clearpass")
-                    print_separator()
+            if mac in tupla[0]:
+                json_data, encontrado = create_json_data(mac, filter, tupla)
+                if json_data:
+                    json_data_list.append(json_data)
+                break
+        if not encontrado:
+            items_not_found.append(mac)
+            print_not_found_data(mac, encontrado, filter)
+    return json_data_list
 
-    # Escribir la lista completa de objetos JSON en el archivo
+
+def create_json_data(mac, filter, tupla):
+    if filter == FILTER[ENDPOINTS_ROLE]:
+        role = get_val("attributes", tupla[1]).get("Last Known User Role")
+        json_data = {"mac": mac, "Role": role} if role is not None else None
+        encontrado = role is not None
+        print_found_data(mac, role, encontrado, filter)
+    else:
+        json_data = {"mac": mac, "details": tupla[1]}
+        encontrado = True
+        print_found_data(mac, tupla[1], encontrado, filter)
+    return json_data, encontrado
+
+
+def write_json_to_file(json_data_list, file_name):
     with open(file_name, "w") as f:
         json.dump(json_data_list, f, indent=2)
 
+
+def print_found_data(mac, data, encontrado, filter):
+    if encontrado:
+        print(f"{mac} encontrado en Clearpass")
+        if filter != FILTER[ACTIVE_SESSION]:
+            print(f"Detalles: {data}")
+        print_separator()
+
+
+def print_not_found_data(mac, encontrado, filter):
+    if not encontrado:
+        print(f"{mac} <NO> encontrado en Clearpass")
+        print_separator()
+
+
+def print_not_found_message(items_not_found, filter, file_name):
     if filter == FILTER[LOCAL_USERS]:
         print_results_not_found(items_not_found, "usuarios locales", file_name)
     elif filter == FILTER[ENDPOINTS]:
         print_results_not_found(items_not_found, "endpoints", file_name)
+    elif filter == FILTER[ENDPOINTS_ROLE]:
+        print_results_not_found(items_not_found, "roles", file_name)
     elif filter == FILTER[ACTIVE_SESSION]:
         print("\nDetalles guardados en archivo %s\n" % file_name)
         print(
@@ -163,7 +205,7 @@ def main():
         menu_option = show_menu()
         print_separator()
         macs_array = read_file_safe(FILE_NAME)
-        if menu_option in [LOCAL_USERS, ENDPOINTS]:
+        if menu_option in [LOCAL_USERS, ENDPOINTS, ENDPOINTS_ROLE]:
             print(f"\nTotal de elementos en Archivo <{FILE_NAME}>: {len(macs_array)}\n")
 
             print(f"Buscando en CPPM...\n")
@@ -183,7 +225,10 @@ def main():
                 )
             )
             result_validation(api_result)
-            check_results(api_result, FILTER[menu_option], macs_array)
+            if menu_option == ENDPOINTS_ROLE:
+                check_results(api_result, FILTER[ENDPOINTS_ROLE], macs_array)
+            else:
+                check_results(api_result, FILTER[menu_option], macs_array)
 
         elif menu_option == None:
             print("Buscando usuarios locales y endpoints...\n")

@@ -7,6 +7,8 @@ def get_filter(macs_array, filter_type, optional_filter=None):
         % (FILTER[LOCAL_USERS], ",".join('"{0}"'.format(elem) for elem in macs_array)),
         ENDPOINTS: '{"%s":[%s]}'
         % (FILTER[ENDPOINTS], ",".join('"{0}"'.format(elem) for elem in macs_array)),
+        ENDPOINTS_ROLE: '{"%s":[%s]}'
+        % (FILTER[ENDPOINTS], ",".join('"{0}"'.format(elem) for elem in macs_array)),
         NAS_SESSION: '{"acctstoptime":{"$exists": false},"nasipaddress":"%s"}'
         % optional_filter,
         ACTIVE_SESSION: '{"acctstoptime":{"$exists": false}, "%s":[%s]}'

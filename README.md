@@ -14,6 +14,8 @@ Una vez creado el cliente de API es necesario crear un **servicio en CPPM para l
 
 Manual de configuración de API en Clearpass: <https://developer.arubanetworks.com/aruba-cppm/docs/clearpass-configuration>
 
+**Para la funcionalidad de búsqueda de roles previamente es necesario guardar en la BBDD de endpoints un atributo con el rol asignado en el servicio (crear un enforcement profile de post-autenticación).**
+
 ### Archivos
 
 - mac.txt - Para el funcionamiento del script es necesario crear un archivo con el listado de macs sin delimitadores.
