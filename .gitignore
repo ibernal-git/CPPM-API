@@ -1,4 +1,6 @@
 .env
 mac.txt
 *.json
+*.xls
+*.xlsx
 __pycache__/
